@@ -19,6 +19,7 @@ model User {
   email           String   @unique
   pass            String?
   profileImageUrl String?
+  role            String   @default("user") // "user" or "admin"
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

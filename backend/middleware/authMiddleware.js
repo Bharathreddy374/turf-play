@@ -17,6 +17,7 @@ const protect = async (req, res, next) => {
                 fullname: true,
                 email: true,
                 profileImageUrl: true,
+                role: true,
             },
         });
         if (!req.user) {

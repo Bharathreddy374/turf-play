@@ -5,7 +5,7 @@ import axiosInstance from '../../utils/axiosInstance'
 import { API_PATHS } from '../../utils/apiPath'
 
 const Dashboard = () => {
-  const { user, clearUser } = useContext(UserContext)
+  const { user, clearUser, isAdmin } = useContext(UserContext)
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
 
@@ -54,12 +54,22 @@ const Dashboard = () => {
                 <p className="text-gray-600 mt-2">Hello, {user.fullname}!</p>
               )}
             </div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-3">
+              {isAdmin() && (
+                <button
+                  onClick={() => navigate("/admin")}
+                  className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded"
+                >
+                  Admin Panel
+                </button>
+              )}
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded"
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -86,6 +96,7 @@ const Dashboard = () => {
                 <p><span className="font-medium">Name:</span> {user.fullname}</p>
                 <p><span className="font-medium">Email:</span> {user.email}</p>
                 <p><span className="font-medium">ID:</span> {user.id}</p>
+                <p><span className="font-medium">Role:</span> <span className={`px-2 py-1 text-xs rounded ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}`}>{user.role}</span></p>
               </div>
             </div>
           )}

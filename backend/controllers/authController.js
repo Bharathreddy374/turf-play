@@ -22,7 +22,7 @@ exports.registerUser = async (req, res) => {
 
         res.status(201).json({
             id: user.id,
-            user: { id: user.id, fullname: user.fullname, email: user.email, profileImageUrl: user.profileImageUrl },
+            user: { id: user.id, fullname: user.fullname, email: user.email, profileImageUrl: user.profileImageUrl, role: user.role },
             token: generateToken(user.id),
         });
     } catch (err) {
@@ -44,7 +44,7 @@ exports.loginUser = async (req, res) => {
 
         res.status(200).json({
             id: user.id,
-            user: { id: user.id, fullname: user.fullname, email: user.email, profileImageUrl: user.profileImageUrl },
+            user: { id: user.id, fullname: user.fullname, email: user.email, profileImageUrl: user.profileImageUrl, role: user.role },
             token: generateToken(user.id),
         });
     } catch (err) {
@@ -56,7 +56,7 @@ exports.getUser = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: req.user.id },
-            select: { id: true, fullname: true, email: true, profileImageUrl: true },
+            select: { id: true, fullname: true, email: true, profileImageUrl: true, role: true },
         });
 
         if (!user) {
