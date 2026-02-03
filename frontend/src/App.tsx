@@ -17,10 +17,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/turfs" element={<TurfManagement />} />
+           <Route path="/admin/turfs" element={<TurfManagement />} />
           <Route path="/turfs" element={<TurfList />} />
           <Route path="/turfs/:id" element={<TurfDetails />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>

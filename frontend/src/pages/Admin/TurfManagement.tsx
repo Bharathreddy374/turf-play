@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { UserContext } from '../../context/UserContext'
 import axiosInstance from '../../utils/axiosInstance'
 import { API_PATHS } from '../../utils/apiPath'
-import { Turf, TurfFormData } from '../../types/turf'
+import { type Turf,type TurfFormData } from '../../types/turf'
 
 const initialFormData: TurfFormData = {
     name: '',

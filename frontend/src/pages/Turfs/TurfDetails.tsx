@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { UserContext } from '../../context/UserContext'
 import axiosInstance from '../../utils/axiosInstance'
 import { API_PATHS } from '../../utils/apiPath'
-import { Turf } from '../../types/turf'
+import {type Turf } from '../../types/turf'
 
 const TurfDetails = () => {
     const { id } = useParams<{ id: string }>()

@@ -1,25 +1,13 @@
-import { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { UserContext } from '../../context/UserContext'
 import axiosInstance from '../../utils/axiosInstance'
 import { API_PATHS } from '../../utils/apiPath'
 
 const Dashboard = () => {
-  const { user, updateUser, clearUser, isAdmin } = useContext(UserContext)
+  const { user, clearUser, isAdmin } = useContext(UserContext)
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
-
-  const fetchUser = async () => {
-    try {
-      const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER)
-      updateUser(response.data)
-      setLoading(false)
-    } catch (error) {
-      console.error("Error fetching user:", error)
-      localStorage.removeItem("token")
-      navigate("/login")
-    }
-  }
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -35,7 +23,15 @@ const Dashboard = () => {
     }
   }, [user, navigate])
 
-  
+  const fetchUser = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER)
+      setLoading(false)
+    } catch (error) {
+      console.error("Error fetching user:", error)
+      setLoading(false)
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("token")
@@ -47,6 +43,11 @@ const Dashboard = () => {
     return <div className="flex items-center justify-center h-screen">Loading...</div>
   }
 
+
+
+
+
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
