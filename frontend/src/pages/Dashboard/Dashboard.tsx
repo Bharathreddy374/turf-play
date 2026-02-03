@@ -1,13 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { UserContext } from '../../context/UserContext'
 import axiosInstance from '../../utils/axiosInstance'
 import { API_PATHS } from '../../utils/apiPath'
 
 const Dashboard = () => {
-  const { user, clearUser, isAdmin } = useContext(UserContext)
+  const { user, updateUser, clearUser, isAdmin } = useContext(UserContext)
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
+
+  const fetchUser = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER)
+      updateUser(response.data)
+      setLoading(false)
+    } catch (error) {
+      console.error("Error fetching user:", error)
+      localStorage.removeItem("token")
+      navigate("/login")
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -23,15 +35,7 @@ const Dashboard = () => {
     }
   }, [user, navigate])
 
-  const fetchUser = async () => {
-    try {
-      const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER)
-      setLoading(false)
-    } catch (error) {
-      console.error("Error fetching user:", error)
-      setLoading(false)
-    }
-  }
+  
 
   const handleLogout = () => {
     localStorage.removeItem("token")
@@ -73,17 +77,20 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-green-400 to-green-600 text-white p-6 rounded-lg">
+            <div 
+              onClick={() => navigate('/turfs')}
+              className="bg-gradient-to-br from-green-400 to-green-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-lg transition-shadow"
+            >
               <h3 className="text-lg font-semibold mb-2">Book a Turf</h3>
               <p className="text-sm">Find and book sports turfs near you</p>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-400 to-blue-600 text-white p-6 rounded-lg">
+            <div className="bg-gradient-to-br from-blue-400 to-blue-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-lg transition-shadow">
               <h3 className="text-lg font-semibold mb-2">My Bookings</h3>
               <p className="text-sm">View your turf reservations</p>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-400 to-purple-600 text-white p-6 rounded-lg">
+            <div className="bg-gradient-to-br from-purple-400 to-purple-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-lg transition-shadow">
               <h3 className="text-lg font-semibold mb-2">Profile</h3>
               <p className="text-sm">Manage your account settings</p>
             </div>

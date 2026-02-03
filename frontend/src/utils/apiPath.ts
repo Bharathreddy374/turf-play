@@ -12,5 +12,14 @@ export const API_PATHS={
         GET_USER_BY_ID:(id: number) => `/api/v1/auth/admin/users/${id}`,
         UPDATE_USER_ROLE:(id: number) => `/api/v1/auth/admin/users/${id}/role`,
         DELETE_USER:(id: number) => `/api/v1/auth/admin/users/${id}`,
+    },
+    TURFS:{
+        GET_ALL:"/api/v1/turfs",
+        GET_BY_ID:(id: number) => `/api/v1/turfs/${id}`,
+        CREATE:"/api/v1/turfs",
+        UPDATE:(id: number) => `/api/v1/turfs/${id}`,
+        DELETE:(id: number) => `/api/v1/turfs/${id}`,
+        ADMIN_ALL:"/api/v1/turfs/admin/all",
+        MY_TURFS:"/api/v1/turfs/admin/my-turfs",
     }
 };
