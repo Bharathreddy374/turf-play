@@ -21,5 +21,14 @@ export const API_PATHS={
         DELETE:(id: number) => `/api/v1/turfs/${id}`,
         ADMIN_ALL:"/api/v1/turfs/admin/all",
         MY_TURFS:"/api/v1/turfs/admin/my-turfs",
+    },
+    BOOKINGS:{
+        CREATE:"/api/v1/bookings",
+        GET_SLOTS:"/api/v1/bookings/slots",
+        MY_BOOKINGS:"/api/v1/bookings/my-bookings",
+        CANCEL:(id: number) => `/api/v1/bookings/${id}/cancel`,
+        ADMIN_ALL:"/api/v1/bookings/admin/all",
+        ADMIN_UPDATE_STATUS:(id: number) => `/api/v1/bookings/admin/${id}/status`,
+        ADMIN_STATS:"/api/v1/bookings/admin/stats",
     }
 };

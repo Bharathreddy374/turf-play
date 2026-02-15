@@ -14,37 +14,58 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   fullname        String
-  email           String   @unique
+  email           String    @unique
   pass            String?
   profileImageUrl String?
-  role            String   @default("user") // "user" or "admin"
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  turfs           Turf[]   @relation("TurfOwner")
+  role            String    @default("user") // "user" or "admin"
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  turfs           Turf[]    @relation("TurfOwner")
+  bookings        Booking[] @relation("UserBookings")
 }
 
 model Turf {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  location    String
-  address     String?
-  city        String
-  state       String?
-  pincode     String?
-  latitude    Float?
-  longitude   Float?
-  images      String[] // Array of image URLs
+  id           Int       @id @default(autoincrement())
+  name         String
+  description  String?
+  location     String
+  address      String?
+  city         String
+  state        String?
+  pincode      String?
+  latitude     Float?
+  longitude    Float?
+  images       String[] // Array of image URLs
   pricePerHour Float
-  sportTypes  String[] // e.g., ["football", "cricket", "basketball"]
-  amenities   String[] // e.g., ["parking", "changing room", "floodlights"]
-  openTime    String   // e.g., "06:00"
-  closeTime   String   // e.g., "22:00"
-  isActive    Boolean  @default(true)
-  ownerId     Int
-  owner       User     @relation("TurfOwner", fields: [ownerId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  sportTypes   String[] // e.g., ["football", "cricket", "basketball"]
+  amenities    String[] // e.g., ["parking", "changing room", "floodlights"]
+  openTime     String   // e.g., "06:00"
+  closeTime    String   // e.g., "22:00"
+  isActive     Boolean  @default(true)
+  ownerId      Int
+  owner        User     @relation("TurfOwner", fields: [ownerId], references: [id])
+  bookings     Booking[] @relation("TurfBookings")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Booking {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  turfId     Int
+  date       String   // e.g., "2026-02-15"
+  startTime  String   // e.g., "09:00"
+  endTime    String   // e.g., "10:00"
+  totalPrice Float
+  status     String   @default("pending") // "pending", "confirmed", "cancelled", "completed"
+  notes      String?
+  user       User     @relation("UserBookings", fields: [userId], references: [id])
+  turf       Turf     @relation("TurfBookings", fields: [turfId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([turfId, date])
+  @@index([userId])
 }

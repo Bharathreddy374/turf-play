@@ -86,7 +86,10 @@ const Dashboard = () => {
               <p className="text-sm">Find and book sports turfs near you</p>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-400 to-blue-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-lg transition-shadow">
+            <div 
+              onClick={() => navigate('/my-bookings')}
+              className="bg-gradient-to-br from-blue-400 to-blue-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-lg transition-shadow"
+            >
               <h3 className="text-lg font-semibold mb-2">My Bookings</h3>
               <p className="text-sm">View your turf reservations</p>
             </div>

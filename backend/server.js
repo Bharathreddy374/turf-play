@@ -6,8 +6,7 @@ const app = express();
 
 const authRoutes = require("./routes/authRoutes");
 const turfRoutes = require("./routes/turfRoutes");
-
-
+const bookingRoutes = require("./routes/bookingRoutes");
 
 app.use(cors({
     origin: process.env.CLIENT_URL || "*",
@@ -20,6 +19,7 @@ app.use(express.urlencoded({extended:true}));
 
 app.use("/api/v1/auth",authRoutes);
 app.use("/api/v1/turfs",turfRoutes);
+app.use("/api/v1/bookings",bookingRoutes);
 
 app.use("/uploads",express.static(path.join(__dirname,"uploads")));
 const PORT = process.env.PORT || 5000;

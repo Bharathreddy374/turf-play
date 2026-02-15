@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { UserContext } from '../../context/UserContext'
 import axiosInstance from '../../utils/axiosInstance'
 import { API_PATHS } from '../../utils/apiPath'
-import {type Turf } from '../../types/turf'
+import { type Turf, type TimeSlot } from '../../types/turf'
 
 const TurfDetails = () => {
     const { id } = useParams<{ id: string }>()
@@ -12,6 +12,14 @@ const TurfDetails = () => {
     const [turf, setTurf] = useState<Turf | null>(null)
     const [loading, setLoading] = useState(true)
     const [selectedImage, setSelectedImage] = useState(0)
+    const [showBooking, setShowBooking] = useState(false)
+    const [selectedDate, setSelectedDate] = useState('')
+    const [slots, setSlots] = useState<TimeSlot[]>([])
+    const [selectedSlots, setSelectedSlots] = useState<TimeSlot[]>([])
+    const [slotsLoading, setSlotsLoading] = useState(false)
+    const [bookingLoading, setBookingLoading] = useState(false)
+    const [bookingSuccess, setBookingSuccess] = useState(false)
+    const [bookingNotes, setBookingNotes] = useState('')
 
     useEffect(() => {
         if (id) {
@@ -35,6 +43,83 @@ const TurfDetails = () => {
         localStorage.removeItem("token")
         clearUser()
         navigate("/login")
+    }
+
+    // Get today's date in YYYY-MM-DD format for min date
+    const getTodayDate = () => {
+        const today = new Date()
+        return today.toISOString().split('T')[0]
+    }
+
+    const fetchSlots = async (date: string) => {
+        if (!id || !date) return
+        try {
+            setSlotsLoading(true)
+            setSelectedSlots([])
+            const response = await axiosInstance.get(`${API_PATHS.BOOKINGS.GET_SLOTS}?turfId=${id}&date=${date}`)
+            setSlots(response.data.slots)
+        } catch (error) {
+            console.error('Error fetching slots:', error)
+        } finally {
+            setSlotsLoading(false)
+        }
+    }
+
+    const handleDateChange = (date: string) => {
+        setSelectedDate(date)
+        setBookingSuccess(false)
+        if (date) {
+            fetchSlots(date)
+        } else {
+            setSlots([])
+            setSelectedSlots([])
+        }
+    }
+
+    const toggleSlotSelection = (slot: TimeSlot) => {
+        if (!slot.isAvailable) return
+        const exists = selectedSlots.find(s => s.startTime === slot.startTime)
+        if (exists) {
+            setSelectedSlots(selectedSlots.filter(s => s.startTime !== slot.startTime))
+        } else {
+            setSelectedSlots([...selectedSlots, slot])
+        }
+    }
+
+    const getTotalPrice = () => {
+        if (!turf) return 0
+        return selectedSlots.length * turf.pricePerHour
+    }
+
+    const handleBooking = async () => {
+        if (!user) {
+            navigate('/login')
+            return
+        }
+        if (selectedSlots.length === 0) return
+
+        try {
+            setBookingLoading(true)
+            // Create a booking for each selected slot
+            for (const slot of selectedSlots) {
+                await axiosInstance.post(API_PATHS.BOOKINGS.CREATE, {
+                    turfId: Number(id),
+                    date: selectedDate,
+                    startTime: slot.startTime,
+                    endTime: slot.endTime,
+                    notes: bookingNotes || undefined,
+                })
+            }
+            setBookingSuccess(true)
+            setSelectedSlots([])
+            setBookingNotes('')
+            // Refresh slots to show updated availability
+            fetchSlots(selectedDate)
+        } catch (error: any) {
+            alert(error.response?.data?.message || 'Error creating booking')
+        } finally {
+            setBookingLoading(false)
+        }
     }
 
     if (loading) {
@@ -199,13 +284,118 @@ const TurfDetails = () => {
                             )}
 
                             <button
-                                onClick={() => user ? alert('Booking feature coming soon!') : navigate('/login')}
+                                onClick={() => {
+                                    if (!user) {
+                                        navigate('/login')
+                                        return
+                                    }
+                                    setShowBooking(!showBooking)
+                                    setBookingSuccess(false)
+                                }}
                                 className="mt-8 w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
                             >
-                                {user ? 'Book Now' : 'Login to Book'}
+                                {user ? (showBooking ? 'Hide Booking' : 'Book Now') : 'Login to Book'}
                             </button>
                         </div>
                     </div>
+
+                    {/* Booking Section */}
+                    {showBooking && user && (
+                        <div className="p-6 border-t">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Book a Slot</h2>
+
+                            {bookingSuccess && (
+                                <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
+                                    <p className="font-semibold">Booking request submitted!</p>
+                                    <p className="text-sm mt-1">Your booking is pending admin approval. You can track it in <button onClick={() => navigate('/my-bookings')} className="underline font-medium">My Bookings</button>.</p>
+                                </div>
+                            )}
+
+                            {/* Date Picker */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
+                                <input
+                                    type="date"
+                                    value={selectedDate}
+                                    min={getTodayDate()}
+                                    onChange={(e) => handleDateChange(e.target.value)}
+                                    className="border rounded-lg px-4 py-2 w-full max-w-xs"
+                                />
+                            </div>
+
+                            {/* Time Slots */}
+                            {selectedDate && (
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium text-gray-700 mb-3">Select Time Slots</label>
+                                    {slotsLoading ? (
+                                        <div className="flex justify-center py-4">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                                            {slots.map((slot) => {
+                                                const isSelected = selectedSlots.some(s => s.startTime === slot.startTime)
+                                                return (
+                                                    <button
+                                                        key={slot.startTime}
+                                                        onClick={() => toggleSlotSelection(slot)}
+                                                        disabled={!slot.isAvailable}
+                                                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                                                            !slot.isAvailable
+                                                                ? 'bg-red-50 text-red-400 border-red-200 cursor-not-allowed'
+                                                                : isSelected
+                                                                    ? 'bg-green-500 text-white border-green-500'
+                                                                    : 'bg-white text-gray-700 border-gray-300 hover:border-green-400 hover:bg-green-50'
+                                                        }`}
+                                                    >
+                                                        {slot.startTime}
+                                                        <span className="block text-xs opacity-75">
+                                                            {!slot.isAvailable ? (slot.status === 'pending' ? 'Pending' : 'Booked') : 'Available'}
+                                                        </span>
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Notes */}
+                            {selectedSlots.length > 0 && (
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes (optional)</label>
+                                    <textarea
+                                        value={bookingNotes}
+                                        onChange={(e) => setBookingNotes(e.target.value)}
+                                        placeholder="Any special requests..."
+                                        className="border rounded-lg px-4 py-2 w-full max-w-md"
+                                        rows={2}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Booking Summary & Confirm */}
+                            {selectedSlots.length > 0 && (
+                                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <h3 className="font-semibold text-gray-800 mb-2">Booking Summary</h3>
+                                    <div className="text-sm text-gray-600 space-y-1">
+                                        <p><span className="font-medium">Date:</span> {new Date(selectedDate + 'T00:00').toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                        <p><span className="font-medium">Slots:</span> {selectedSlots.sort((a, b) => a.startTime.localeCompare(b.startTime)).map(s => `${s.startTime}-${s.endTime}`).join(', ')}</p>
+                                        <p><span className="font-medium">Duration:</span> {selectedSlots.length} hour{selectedSlots.length > 1 ? 's' : ''}</p>
+                                        <p className="text-lg font-bold text-green-600 mt-2">Total: ₹{getTotalPrice()}</p>
+                                    </div>
+                                    <button
+                                        onClick={handleBooking}
+                                        disabled={bookingLoading}
+                                        className="mt-4 w-full bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                                    >
+                                        {bookingLoading ? 'Booking...' : `Confirm Booking - ₹${getTotalPrice()}`}
+                                    </button>
+                                    <p className="text-xs text-gray-500 mt-2 text-center">Your booking will be confirmed after admin approval</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </main>
         </div>
