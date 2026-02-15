@@ -29,9 +29,10 @@ const Login = () => {
         email,
         pass,
       });
-      const {token,user}=response.data;
+      const {token, refreshToken, user}=response.data;
       if(token && user){
         localStorage.setItem("token",token);
+        if(refreshToken) localStorage.setItem("refreshToken",refreshToken);
         updateUser(user);
         navigate("/dashboard");
       }

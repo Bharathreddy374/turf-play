@@ -180,7 +180,12 @@ const TurfManagement = () => {
     }
 
     const handleLogout = () => {
+        const refreshToken = localStorage.getItem("refreshToken")
+        if (refreshToken) {
+            axiosInstance.post(API_PATHS.AUTH.LOGOUT, { refreshToken }).catch(() => {})
+        }
         localStorage.removeItem("token")
+        localStorage.removeItem("refreshToken")
         clearUser()
         navigate("/login")
     }

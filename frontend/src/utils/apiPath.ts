@@ -5,6 +5,8 @@ export const API_PATHS={
         LOGIN:"/api/v1/auth/login",
         SIGNUP:"/api/v1/auth/signup",
         GET_USER:"/api/v1/auth/getUser",
+        REFRESH_TOKEN:"/api/v1/auth/refresh-token",
+        LOGOUT:"/api/v1/auth/logout",
     },
     ADMIN:{
         STATS:"/api/v1/auth/admin/stats",
