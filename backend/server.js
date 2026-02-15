@@ -24,6 +24,8 @@ app.use("/api/v1/bookings",bookingRoutes);
 app.use("/uploads",express.static(path.join(__dirname,"uploads")));
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
+}).on('error', (err) => {
+    console.error('Server failed to start:', err);
 });
